@@ -7,43 +7,71 @@ import 'package:srm_conn_server/model/student.dart';
 
 class Faculty {
   String name;
-  String regNo;
-  List<Student?> students;
+  String regNum;
+  String position;
+  String email;
+  String whatsappNumber;
+  String? batch;
+  int? semester;
+  List<dynamic>? studentId = [];
   Faculty({
     required this.name,
-    required this.regNo,
-    required this.students,
+    required this.regNum,
+    required this.position,
+    required this.email,
+    required this.whatsappNumber,
+    this.batch,
+    this.semester,
+    this.studentId,
   });
 
   Faculty copyWith({
     String? name,
-    String? regNo,
-    List<Student?>? students,
+    String? regNum,
+    String? position,
+    String? email,
+    String? whatsappNumber,
+    String? batch,
+    int? semester,
+    List<dynamic>? studentId,
   }) {
     return Faculty(
       name: name ?? this.name,
-      regNo: regNo ?? this.regNo,
-      students: students ?? this.students,
+      regNum: regNum ?? this.regNum,
+      position: position ?? this.position,
+      email: email ?? this.email,
+      whatsappNumber: whatsappNumber ?? this.whatsappNumber,
+      batch: batch ?? this.batch,
+      semester: semester ?? this.semester,
+      studentId: studentId ?? this.studentId,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'name': name,
-      'regNo': regNo,
-      'students': students.map((x) => x?.toMap()).toList(),
+      'regNum': regNum,
+      'position': position,
+      'email': email,
+      'whatsappNumber': whatsappNumber,
+      'batch': batch,
+      'semester': semester,
+      'studentId': studentId,
     };
   }
 
-  factory Faculty.fromMap(Map<String, dynamic> map) {
+  factory Faculty.fromMap(map) {
     return Faculty(
       name: map['name'] as String,
-      regNo: map['regNo'] as String,
-      students: List<Student?>.from(
-        (map['students'] as List<int>).map<Student?>(
-          (x) => Student.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
+      regNum: map['regNum'] as String,
+      position: map['position'] as String,
+      email: map['email'] as String,
+      whatsappNumber: map['whatsappNumber'] as String,
+      batch: map['batch'] != null ? map['batch'] as String : null,
+      semester: map['semester'] != null ? map['semester'] as int : null,
+      studentId: map['studentId'] != null
+          ? List<dynamic>.from((map['studentId'] as List<dynamic>))
+          : null,
     );
   }
 
@@ -53,8 +81,9 @@ class Faculty {
       Faculty.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() =>
-      'Faculty(name: $name, regNo: $regNo, students: $students)';
+  String toString() {
+    return 'Faculty(name: $name, regNum: $regNum, position: $position, email: $email, whatsappNumber: $whatsappNumber, batch: $batch, semester: $semester, studentId: $studentId)';
+  }
 
   @override
   bool operator ==(covariant Faculty other) {
@@ -62,10 +91,24 @@ class Faculty {
     final listEquals = const DeepCollectionEquality().equals;
 
     return other.name == name &&
-        other.regNo == regNo &&
-        listEquals(other.students, students);
+        other.regNum == regNum &&
+        other.position == position &&
+        other.email == email &&
+        other.whatsappNumber == whatsappNumber &&
+        other.batch == batch &&
+        other.semester == semester &&
+        listEquals(other.studentId, studentId);
   }
 
   @override
-  int get hashCode => name.hashCode ^ regNo.hashCode ^ students.hashCode;
+  int get hashCode {
+    return name.hashCode ^
+        regNum.hashCode ^
+        position.hashCode ^
+        email.hashCode ^
+        whatsappNumber.hashCode ^
+        batch.hashCode ^
+        semester.hashCode ^
+        studentId.hashCode;
+  }
 }

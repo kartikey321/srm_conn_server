@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:dart_frog/dart_frog.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
+import 'package:srm_conn_server/model/faculty.dart';
 import 'package:srm_conn_server/model/srm_mail.dart';
 import 'package:srm_conn_server/model/thread.dart';
 
@@ -18,10 +19,8 @@ class MongoHelper {
     db = await mongo.Db.create(
       'mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/',
     );
-    await db!.open().whenComplete(() {
-      print(db);
-    });
-    print(db);
+    var res = await db!.open();
+    print(res);
     return db!;
   }
 
@@ -30,12 +29,15 @@ class MongoHelper {
     Future<Response> callBack,
   ) async {
     try {
-      await initiaize();
+      while (db == null) {
+        var res = await initiaize();
+      }
+
       return await callBack;
     } catch (e) {
       return Response.json(
         statusCode: 500,
-        body: {'message': 'Internal server error'},
+        body: {'message': 'Internal Server Error'},
       );
     }
   }
@@ -68,6 +70,104 @@ class MongoHelper {
     }
   }
 
+  static Future<List<Parent?>?> getAllParents() async {
+    var parentsColl = db!.collection('parents');
+
+    var data = await parentsColl.find().toList();
+    print(data);
+    List<Parent> parentList = [];
+    if (data != null) {
+      for (var d in data as List) {
+        var student = Parent.fromMap(d as Map<String, dynamic>);
+        parentList.add(student);
+      }
+    }
+    return parentList;
+  }
+
+  static Future addFaculty(Faculty faculty) async {
+    var facultyColl = db!.collection('faculties');
+    await facultyColl.createIndex(
+      keys: {'email': 1},
+      unique: true,
+    );
+    try {
+      await facultyColl.insertOne(faculty.toMap());
+      print('Faculty added!');
+      return 'Success: Faculty added';
+    } catch (e) {
+      // Handle other errors, if any
+      print('Error: $e');
+      return 'Error: $e';
+    }
+  }
+
+  static Future<List<Faculty?>?> getAllFaculties() async {
+    var facultiesColl = db!.collection('faculties');
+
+    var data = await facultiesColl.find().toList();
+    print(data);
+    List<Faculty> facultyList = [];
+    if (data != null) {
+      for (var d in data as List) {
+        var faculty = Faculty.fromMap(d);
+        facultyList.add(faculty);
+      }
+    }
+    return facultyList;
+  }
+
+  static Future updateFacultyBatchYear(Map<String, dynamic> update) async {
+    print('update1: $update');
+    Map<String, dynamic> update1 = {
+      "regNum": update['regNum'],
+      "batch": update['batch'],
+      "semester": update['semester']
+    };
+    print('update1: $update1');
+    var res = await updateFaculty(update1);
+    return res;
+  }
+
+  static Future<Faculty?> getFacultybyId(String id) async {
+    print(db);
+    var facultyColl = db!.collection('faculties');
+    print(id);
+
+    var data = await facultyColl.findOne(mongo.where.eq('regNum', id));
+    print(data);
+    if (data != null) {
+      Faculty model = Faculty.fromMap(data);
+      return model;
+    }
+  }
+
+  static Future updateFaculty(Map<String, dynamic> faculty) async {
+    var studentsColl = db!.collection('faculties');
+    try {
+      final update = mongo.ModifierBuilder();
+
+      faculty.forEach((key, value) {
+        update.set(key, value);
+      });
+
+      // Perform the update
+      final result = await studentsColl.update(
+          mongo.where.eq('regNum', faculty['regNum']), update);
+
+      // if (result["nModified"] != null && result["nModified"] > 0) {
+      //   print("Document updated successfully.");
+      // } else {
+      //   print("Document not updated. No changes made.");
+      // }
+      print('result: ${result["nModified"]}');
+      return ({"status": "success"});
+    } catch (e) {
+      print(e);
+      return e;
+    }
+  }
+
   static Future addStudent(Student student) async {
     var studentsColl = db!.collection('students');
     await studentsColl.createIndex(
@@ -83,6 +183,47 @@ class MongoHelper {
       print('Error: $e');
       return 'Error: $e';
     }
+  }
+
+  static Future updateStudent(Map<String, dynamic> student) async {
+    var studentsColl = db!.collection('students');
+    try {
+      final update = mongo.ModifierBuilder();
+
+      student.forEach((key, value) {
+        update.set(key, value);
+      });
+
+      // Perform the update
+      final result = await studentsColl.update(
+          mongo.where.eq('regNum', student['regNum']), update);
+
+      // if (result["nModified"] != null && result["nModified"] > 0) {
+      //   print("Document updated successfully.");
+      // } else {
+      //   print("Document not updated. No changes made.");
+      // }
+      print(result["nModified"]);
+      return ({"status": "success"});
+    } catch (e) {
+      print(e);
+      return e;
+    }
+  }
+
+  static Future<List<Student?>?> getAllStudents() async {
+    var studentsColl = db!.collection('students');
+
+    var data = await studentsColl.find().toList();
+    print(data);
+    List<Student> studList = [];
+    if (data != null) {
+      for (var d in data as List) {
+        var student = Student.fromMap(d);
+        studList.add(student);
+      }
+    }
+    return studList;
   }
 
   static Future<Student?> getStudentbyId(String id) async {
@@ -114,9 +255,12 @@ class MongoHelper {
 
     var filter = mongo.where.eq('email', email);
     var update = mongo.modify.set('verified', true);
-    return parentsColl.updateOne(filter, update).whenComplete(() {
-      return 'done';
-    });
+    try {
+      await parentsColl.updateOne(filter, update);
+      return "done";
+    } catch (e) {
+      return e;
+    }
   }
 
   static Future deleteParent(String email) async {
