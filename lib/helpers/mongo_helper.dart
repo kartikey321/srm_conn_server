@@ -111,6 +111,8 @@ class MongoHelper {
     if (data != null) {
       for (var d in data as List) {
         var faculty = Faculty.fromMap(d);
+        var res = await getStudentsByFacultyId(faculty.regNum);
+        faculty.studentId = res;
         facultyList.add(faculty);
       }
     }
@@ -138,8 +140,23 @@ class MongoHelper {
     print(data);
     if (data != null) {
       Faculty model = Faculty.fromMap(data);
+      var res = await getStudentsByFacultyId(id);
+      model.studentId = res;
       return model;
     }
+  }
+
+  static Future<List<String>> getStudentsByFacultyId(String facultyId) async {
+    var studentsColl = db!.collection('students');
+
+    final studentsStream =
+        studentsColl.find(mongo.where.eq('courses.facultyId', facultyId));
+
+    final studentRegNums = await studentsStream
+        .map((student) => student['regNum'] as String)
+        .toList();
+
+    return studentRegNums;
   }
 
   static Future updateFaculty(Map<String, dynamic> faculty) async {
