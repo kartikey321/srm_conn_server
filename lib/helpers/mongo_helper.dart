@@ -13,6 +13,11 @@ import '../model/parent.dart';
 import '../model/student.dart';
 
 class MongoHelper {
+  static String studentPath = 'students';
+  static String facultyPath = 'faculties';
+  static String parentPath = 'parents';
+  static String threadPath = 'threads';
+  static String mailPath = 'mails';
   static mongo.Db? db;
 
   static Future<mongo.Db> initiaize() async {
@@ -54,7 +59,7 @@ class MongoHelper {
   }
 
   static Future addParent(Parent parent) async {
-    var parentsColl = db!.collection('parents');
+    var parentsColl = db!.collection(parentPath);
     await parentsColl.createIndex(
       keys: {'email': 1},
       unique: true,
@@ -71,7 +76,7 @@ class MongoHelper {
   }
 
   static Future<List<Parent?>?> getAllParents() async {
-    var parentsColl = db!.collection('parents');
+    var parentsColl = db!.collection(parentPath);
 
     var data = await parentsColl.find().toList();
     print(data);
@@ -86,7 +91,7 @@ class MongoHelper {
   }
 
   static Future addFaculty(Faculty faculty) async {
-    var facultyColl = db!.collection('faculties');
+    var facultyColl = db!.collection(facultyPath);
     await facultyColl.createIndex(
       keys: {'email': 1},
       unique: true,
@@ -103,14 +108,14 @@ class MongoHelper {
   }
 
   static Future<List<Faculty?>?> getAllFaculties() async {
-    var facultiesColl = db!.collection('faculties');
+    var facultiesColl = db!.collection(facultyPath);
 
     var data = await facultiesColl.find().toList();
     print(data);
     List<Faculty> facultyList = [];
     if (data != null) {
       for (var d in data as List) {
-        var faculty = Faculty.fromMap(d);
+        var faculty = Faculty.fromMap(d as Map<String, dynamic>);
         var res = await getStudentsByFacultyId(faculty.regNum);
         faculty.studentId = res;
         facultyList.add(faculty);
@@ -133,7 +138,7 @@ class MongoHelper {
 
   static Future<Faculty?> getFacultybyId(String id) async {
     print(db);
-    var facultyColl = db!.collection('faculties');
+    var facultyColl = db!.collection(facultyPath);
     print(id);
 
     var data = await facultyColl.findOne(mongo.where.eq('regNum', id));
@@ -147,7 +152,7 @@ class MongoHelper {
   }
 
   static Future<List<String>> getStudentsByFacultyId(String facultyId) async {
-    var studentsColl = db!.collection('students');
+    var studentsColl = db!.collection(studentPath);
 
     final studentsStream =
         studentsColl.find(mongo.where.eq('courses.facultyId', facultyId));
@@ -160,7 +165,7 @@ class MongoHelper {
   }
 
   static Future updateFaculty(Map<String, dynamic> faculty) async {
-    var studentsColl = db!.collection('faculties');
+    var studentsColl = db!.collection(facultyPath);
     try {
       final update = mongo.ModifierBuilder();
 
@@ -186,7 +191,7 @@ class MongoHelper {
   }
 
   static Future addStudent(Student student) async {
-    var studentsColl = db!.collection('students');
+    var studentsColl = db!.collection(studentPath);
     await studentsColl.createIndex(
       keys: {'email': 1},
       unique: true,
@@ -203,7 +208,7 @@ class MongoHelper {
   }
 
   static Future updateStudent(Map<String, dynamic> student) async {
-    var studentsColl = db!.collection('students');
+    var studentsColl = db!.collection(studentPath);
     try {
       final update = mongo.ModifierBuilder();
 
@@ -229,7 +234,7 @@ class MongoHelper {
   }
 
   static Future<List<Student?>?> getAllStudents() async {
-    var studentsColl = db!.collection('students');
+    var studentsColl = db!.collection(studentPath);
 
     var data = await studentsColl.find().toList();
     print(data);
@@ -245,7 +250,7 @@ class MongoHelper {
 
   static Future<Student?> getStudentbyId(String id) async {
     print(db);
-    var studentsColl = db!.collection('students');
+    var studentsColl = db!.collection(studentPath);
     print(id);
 
     var data = await studentsColl.findOne(mongo.where.eq('regNum', id));
@@ -257,7 +262,7 @@ class MongoHelper {
   }
 
   static Future<Parent?> getParentbyId(String email) async {
-    var parentsColl = db!.collection('parents');
+    var parentsColl = db!.collection(parentPath);
     print(email);
     var data = await parentsColl.findOne(mongo.where.eq('email', email));
     print(data);
@@ -268,7 +273,7 @@ class MongoHelper {
   }
 
   static Future verifyParent(String email) async {
-    var parentsColl = db!.collection('parents');
+    var parentsColl = db!.collection(parentPath);
 
     var filter = mongo.where.eq('email', email);
     var update = mongo.modify.set('verified', true);
@@ -281,7 +286,7 @@ class MongoHelper {
   }
 
   static Future deleteParent(String email) async {
-    var parentsColl = db!.collection('parents');
+    var parentsColl = db!.collection(parentPath);
     return parentsColl
         .deleteOne(mongo.where.eq('email', email))
         .whenComplete(() {
@@ -290,7 +295,7 @@ class MongoHelper {
   }
 
   static Future deleteStudent(String email) async {
-    var studentsColl = db!.collection('students');
+    var studentsColl = db!.collection(studentPath);
     return studentsColl
         .deleteOne(mongo.where.eq('email', email))
         .whenComplete(() {
@@ -299,22 +304,28 @@ class MongoHelper {
   }
 
   static Future<Thread?> getThread(String id) async {
-    var threadColl = db!.collection('threads');
+    var threadColl = db!.collection(threadPath);
     print(id);
-    var data = await threadColl
-        .findOne(mongo.where.id(mongo.ObjectId.fromHexString(id)));
-    print(data);
-    if (data != null) {
-      Thread model = Thread.fromMap(data);
-      return model;
+    var objId = mongo.ObjectId.fromHexString('$id');
+    print(objId);
+    try {
+      var data = await threadColl.findOne(mongo.where.id(objId));
+      print(data);
+      if (data != null) {
+        Thread model = Thread.fromMap(data);
+        return model;
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
   static Future<SRMMail?> getMail(String id) async {
-    var mailColl = db!.collection('mails');
+    var mailColl = db!.collection(mailPath);
     print(id);
-    var data = await mailColl
-        .findOne(mongo.where.id(mongo.ObjectId.fromHexString(id)));
+    var objId = mongo.ObjectId.fromHexString(id);
+    print(objId);
+    var data = await mailColl.findOne(mongo.where.id(objId));
     print(data);
     if (data != null) {
       SRMMail model = SRMMail.fromMap(data);
@@ -323,9 +334,10 @@ class MongoHelper {
   }
 
   static Future addMailToThread(String threadId, SRMMail mail) async {
-    var threadsColl = db!.collection('threads');
-    var mailsColl = db!.collection('mails');
-
+    var threadsColl = db!.collection(threadPath);
+    var mailsColl = db!.collection(mailPath);
+    print(threadId);
+    print(mail.toJson());
     try {
       //adding mail
       var addedMail = await mailsColl.insertOne(mail.toMap());
@@ -335,7 +347,11 @@ class MongoHelper {
         mongo.where.id(mongo.ObjectId.fromHexString(threadId)),
         mongo.modify.addToSet('messageIds', addedMail.id),
       );
-      print("Success: Mail Sent");
+      await threadsColl.update(
+        mongo.where.id(mongo.ObjectId.fromHexString(threadId)),
+        mongo.modify.set('updatedAt', mail.time.toIso8601String()),
+      );
+      print("Success: Mail Sent  ${threadUpdateResult}");
       return jsonEncode({"Status": "Success, MailSent"});
     } catch (e) {
       print(e);
@@ -343,24 +359,37 @@ class MongoHelper {
     }
   }
 
-  static Future createThread(String parentId, Thread thread) async {
-    var threadsColl = db!.collection('threads');
-    var parentsColl = db!.collection('parents');
+  static Future createThread(
+      {required String senderType,
+      required String senderId,
+      required String recieverId,
+      required String recieverType}) async {
+    var threadsColl = db!.collection(threadPath);
+    var senderColl = db!.collection(senderType);
+    var recieverColl = db!.collection(recieverType);
     try {
       //creating thread
+      Thread thread = Thread(
+          createdAt: DateTime.now(), updatedAt: DateTime.now(), messageIds: []);
       var map = thread.toMap();
-      map['id'] = mongo.ObjectId();
-      map['_id'] = map['id'];
+      var id = mongo.ObjectId();
+      map['id'] = id.toHexString();
+      map['_id'] = id;
       var addedThred = await threadsColl.insertOne(map);
-      //adding thread to parents collection
-      var filter = mongo.where.eq('email', parentId);
-      await parentsColl.update(
+      //adding thread to senders collection
+      var filter = mongo.where.eq('email', senderId);
+      await senderColl.update(
         filter,
-        mongo.modify.addToSet('threadIds', addedThred.id),
+        mongo.modify.addToSet('threadIds', id.toHexString()),
+      );
+      await recieverColl.update(
+        mongo.where.eq('email', recieverId),
+        mongo.modify.addToSet('threadIds', id.toHexString()),
       );
       print('Success: Mail Sent');
       return jsonEncode(
-          {'Status': 'Success, Thread created', 'threadId': addedThred.id});
+        {'Status': 'Success, Thread created', 'threadId': id.toHexString()},
+      );
     } catch (e) {
       print(e);
       return e;

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
 import 'package:srm_conn_server/helpers/mongo_helper.dart';
-import 'package:srm_conn_server/model/thread.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   // TODO: implement route handler
@@ -23,14 +22,26 @@ Future<Response> onRequest(RequestContext context) async {
 
 Future<Response> newThread(RequestContext context) async {
   final body = await context.request.json() as Map<String, dynamic>;
-  var parentId;
-  if (body.containsKey('parentId') && body.isNotEmpty) {
-    parentId = body['parentId'];
-    body.remove('parentId');
-  } else {
+  final keysToCheck = <String>[
+    'senderType',
+    'recieverType',
+    'senderId',
+    'recieverId'
+  ];
+  if (!(keysToCheck.every(body.containsKey) && body.isNotEmpty)) {
     return Response(body: jsonEncode({"Status": "Provide all fields"}));
   }
-  Thread thread = Thread.fromMap(body);
-  var res = await MongoHelper.createThread(parentId.toString(), thread);
+  var res;
+  try {
+    res = await MongoHelper.createThread(
+      senderId: body['senderId'] as String,
+      senderType: body['senderType'] as String,
+      recieverId: body['recieverId'] as String,
+      recieverType: body['recieverType'] as String,
+    );
+  } catch (e) {
+    print(e);
+    res = e;
+  }
   return Response(body: res.toString());
 }

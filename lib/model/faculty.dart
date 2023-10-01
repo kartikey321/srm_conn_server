@@ -12,6 +12,7 @@ class Faculty {
   String email;
   String whatsappNumber;
   String? batch;
+  List<dynamic>? threads;
   int? semester;
   List<dynamic>? studentId = [];
   Faculty({
@@ -21,6 +22,7 @@ class Faculty {
     required this.email,
     required this.whatsappNumber,
     this.batch,
+    this.threads,
     this.semester,
     this.studentId,
   });
@@ -32,6 +34,7 @@ class Faculty {
     String? email,
     String? whatsappNumber,
     String? batch,
+    List<dynamic>? threads,
     int? semester,
     List<dynamic>? studentId,
   }) {
@@ -42,6 +45,7 @@ class Faculty {
       email: email ?? this.email,
       whatsappNumber: whatsappNumber ?? this.whatsappNumber,
       batch: batch ?? this.batch,
+      threads: threads ?? this.threads,
       semester: semester ?? this.semester,
       studentId: studentId ?? this.studentId,
     );
@@ -55,12 +59,13 @@ class Faculty {
       'email': email,
       'whatsappNumber': whatsappNumber,
       'batch': batch,
+      'threads': threads,
       'semester': semester,
       'studentId': studentId,
     };
   }
 
-  factory Faculty.fromMap(map) {
+  factory Faculty.fromMap(Map<String, dynamic> map) {
     return Faculty(
       name: map['name'] as String,
       regNum: map['regNum'] as String,
@@ -68,6 +73,9 @@ class Faculty {
       email: map['email'] as String,
       whatsappNumber: map['whatsappNumber'] as String,
       batch: map['batch'] != null ? map['batch'] as String : null,
+      threads: map['threads'] != null
+          ? List<dynamic>.from((map['threads'] as List<dynamic>))
+          : null,
       semester: map['semester'] != null ? map['semester'] as int : null,
       studentId: map['studentId'] != null
           ? List<dynamic>.from((map['studentId'] as List<dynamic>))
@@ -82,7 +90,7 @@ class Faculty {
 
   @override
   String toString() {
-    return 'Faculty(name: $name, regNum: $regNum, position: $position, email: $email, whatsappNumber: $whatsappNumber, batch: $batch, semester: $semester, studentId: $studentId)';
+    return 'Faculty(name: $name, regNum: $regNum, position: $position, email: $email, whatsappNumber: $whatsappNumber, batch: $batch, threads: $threads, semester: $semester, studentId: $studentId)';
   }
 
   @override
@@ -96,6 +104,7 @@ class Faculty {
         other.email == email &&
         other.whatsappNumber == whatsappNumber &&
         other.batch == batch &&
+        listEquals(other.threads, threads) &&
         other.semester == semester &&
         listEquals(other.studentId, studentId);
   }
@@ -108,6 +117,7 @@ class Faculty {
         email.hashCode ^
         whatsappNumber.hashCode ^
         batch.hashCode ^
+        threads.hashCode ^
         semester.hashCode ^
         studentId.hashCode;
   }

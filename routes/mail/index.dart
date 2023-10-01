@@ -25,13 +25,18 @@ Future<Response> onRequest(RequestContext context) async {
 Future<Response> newMail(RequestContext context) async {
   final body = await context.request.json() as Map<String, dynamic>;
   var threadId;
-  if (body.containsKey('threadId') && body.isNotEmpty) {
-    threadId = body['parentId'];
-    body.remove('threadId');
-  } else {
-    return Response(body: jsonEncode({"Status": "Provide all fields"}));
+  try {
+    print(body);
+    if (body.containsKey('threadId') && body.isNotEmpty) {
+      threadId = body['threadId'];
+      body.remove('threadId');
+    } else {
+      return Response(body: jsonEncode({"Status": "Provide all fields"}));
+    }
+    SRMMail mail = SRMMail.fromMap(body);
+    var res = await MongoHelper.addMailToThread(threadId as String, mail);
+    return Response(body: res.toString());
+  } catch (e) {
+    return Response(body: e.toString());
   }
-  SRMMail mail = SRMMail.fromMap(body);
-  var res = await MongoHelper.addMailToThread(threadId.toString(), mail);
-  return Response(body: res.toString());
 }

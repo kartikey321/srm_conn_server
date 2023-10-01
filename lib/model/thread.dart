@@ -6,25 +6,25 @@ import 'package:collection/collection.dart';
 class Thread {
   String? id;
   DateTime createdAt;
-  DateTime updatedat;
-  List<dynamic>? messageIds;
+  DateTime updatedAt;
+  List<dynamic> messageIds;
   Thread({
     this.id,
     required this.createdAt,
-    required this.updatedat,
-    this.messageIds,
+    required this.updatedAt,
+    required this.messageIds,
   });
 
   Thread copyWith({
     String? id,
     DateTime? createdAt,
-    DateTime? updatedat,
+    DateTime? updatedAt,
     List<dynamic>? messageIds,
   }) {
     return Thread(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
-      updatedat: updatedat ?? this.updatedat,
+      updatedAt: updatedAt ?? this.updatedAt,
       messageIds: messageIds ?? this.messageIds,
     );
   }
@@ -32,8 +32,8 @@ class Thread {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'createdAt': createdAt.millisecondsSinceEpoch,
-      'updatedat': updatedat.millisecondsSinceEpoch,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
       'messageIds': messageIds,
     };
   }
@@ -41,11 +41,11 @@ class Thread {
   factory Thread.fromMap(Map<String, dynamic> map) {
     return Thread(
       id: map['id'] != null ? map['id'] as String : null,
-      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int),
-      updatedat: DateTime.fromMillisecondsSinceEpoch(map['updatedat'] as int),
+      createdAt: DateTime.parse(map['createdAt'] as String),
+      updatedAt: DateTime.parse(map['createdAt'] as String),
       messageIds: map['messageIds'] != null
           ? List<dynamic>.from((map['messageIds'] as List<dynamic>))
-          : null,
+          : [],
     );
   }
 
@@ -56,7 +56,7 @@ class Thread {
 
   @override
   String toString() {
-    return 'Thread(id: $id, createdAt: $createdAt, updatedat: $updatedat, messageIds: $messageIds)';
+    return 'Thread(id: $id, createdAt: $createdAt, updatedAt: $updatedAt, messageIds: $messageIds)';
   }
 
   @override
@@ -66,7 +66,7 @@ class Thread {
 
     return other.id == id &&
         other.createdAt == createdAt &&
-        other.updatedat == updatedat &&
+        other.updatedAt == updatedAt &&
         listEquals(other.messageIds, messageIds);
   }
 
@@ -74,7 +74,7 @@ class Thread {
   int get hashCode {
     return id.hashCode ^
         createdAt.hashCode ^
-        updatedat.hashCode ^
+        updatedAt.hashCode ^
         messageIds.hashCode;
   }
 }

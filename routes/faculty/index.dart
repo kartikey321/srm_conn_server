@@ -6,8 +6,6 @@ import 'package:srm_conn_server/helpers/mongo_helper.dart';
 import 'package:srm_conn_server/model/faculty.dart';
 
 Future<Response> onRequest(RequestContext context) async {
-  // TODO: implement route handler
-
   switch (context.request.method) {
     case HttpMethod.post:
       return MongoHelper.startConnection(context, newFaculty(context));
