@@ -1,8 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
-
 import 'academics.dart';
 import 'course.dart';
 
@@ -12,7 +10,7 @@ class Student {
   String name;
   String email;
   String batch;
-  String semester;
+  int semester;
   String facultyAdvisor;
   String department;
   String whatsappNumber;
@@ -40,7 +38,7 @@ class Student {
     String? name,
     String? email,
     String? batch,
-    String? semester,
+    int? semester,
     String? facultyAdvisor,
     String? department,
     String? whatsappNumber,
@@ -88,7 +86,7 @@ class Student {
       name: map['name'] as String,
       email: map['email'] as String,
       batch: map['batch'] as String,
-      semester: map['semester'] as String,
+      semester: map['semester'] as int,
       facultyAdvisor: map['facultyAdvisor'] as String,
       department: map['department'] as String,
       whatsappNumber: map['whatsappNumber'] as String,
@@ -97,14 +95,14 @@ class Student {
           : null,
       academics: map['academics'] != null
           ? List<Academics>.from(
-              (map['academics'] as List<int>).map<Academics?>(
+              (map['academics'] as List<dynamic>).map<Academics?>(
                 (x) => Academics.fromMap(x as Map<String, dynamic>),
               ),
             )
           : null,
       courses: map['courses'] != null
           ? List<Course>.from(
-              (map['courses'] as List<int>).map<Course?>(
+              (map['courses'] as List<dynamic>).map<Course?>(
                 (x) => Course.fromMap(x as Map<String, dynamic>),
               ),
             )
@@ -120,25 +118,6 @@ class Student {
   @override
   String toString() {
     return 'Student(id: $id, regNum: $regNum, name: $name, email: $email, batch: $batch, semester: $semester, facultyAdvisor: $facultyAdvisor, department: $department, whatsappNumber: $whatsappNumber, parentIds: $parentIds, academics: $academics, courses: $courses)';
-  }
-
-  @override
-  bool operator ==(covariant Student other) {
-    if (identical(this, other)) return true;
-    final listEquals = const DeepCollectionEquality().equals;
-
-    return other.id == id &&
-        other.regNum == regNum &&
-        other.name == name &&
-        other.email == email &&
-        other.batch == batch &&
-        other.semester == semester &&
-        other.facultyAdvisor == facultyAdvisor &&
-        other.department == department &&
-        other.whatsappNumber == whatsappNumber &&
-        listEquals(other.parentIds, parentIds) &&
-        listEquals(other.academics, academics) &&
-        listEquals(other.courses, courses);
   }
 
   @override

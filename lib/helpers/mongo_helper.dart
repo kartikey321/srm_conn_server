@@ -8,7 +8,6 @@ import 'package:srm_conn_server/model/faculty.dart';
 import 'package:srm_conn_server/model/srm_mail.dart';
 import 'package:srm_conn_server/model/thread.dart';
 
-import '../model/course.dart';
 import '../model/parent.dart';
 import '../model/student.dart';
 
@@ -46,6 +45,14 @@ class MongoHelper {
       );
     }
   }
+
+  // static Future<void> doMyJob() async {
+  //   var coll = db!.collection(studentPath);
+  //   await coll.updateMany({}, mongo.modify.rename('year', 'semester'));
+  //   await coll.updateMany({}, mongo.modify.set('semester', 4));
+  //   await coll.updateMany({}, mongo.modify.set('courses.\$\[].semester', 1));
+  //   print('done');
+  // }
 
   static Future<void> clearAllCollections() async {
     // Open the database connection if not already opened
@@ -264,11 +271,15 @@ class MongoHelper {
   static Future<Parent?> getParentbyId(String email) async {
     var parentsColl = db!.collection(parentPath);
     print(email);
-    var data = await parentsColl.findOne(mongo.where.eq('email', email));
-    print(data);
-    if (data != null) {
-      Parent model = Parent.fromMap(data);
-      return model;
+    try {
+      var data = await parentsColl.findOne(mongo.where.eq('email', email));
+      print(data);
+      if (data != null) {
+        Parent model = Parent.fromMap(data);
+        return model;
+      }
+    } catch (e) {
+      print(e);
     }
   }
 

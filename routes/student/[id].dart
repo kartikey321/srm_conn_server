@@ -22,11 +22,19 @@ Future<Response> onRequest(
 }
 
 Future<Response> deleteParent(RequestContext context, String id) async {
-  var res = await MongoHelper.deleteParent(id);
-  return Response.json(body: res.toString());
+  try {
+    var res = await MongoHelper.deleteParent(id);
+    return Response.json(body: res.toString());
+  } catch (e) {
+    return Response.json(body: e.toString());
+  }
 }
 
 Future<Response> fetchStudent(RequestContext context, String id) async {
-  var data = await MongoHelper.getStudentbyId(id);
-  return Response(body: data!.toJson());
+  try {
+    var data = await MongoHelper.getStudentbyId(id);
+    return Response(body: data!.toJson());
+  } catch (e) {
+    return Response(body: e.toString());
+  }
 }
