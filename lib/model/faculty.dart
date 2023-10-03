@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 
-import 'package:srm_conn_server/model/student.dart';
+import 'student.dart';
 
 class Faculty {
   String name;
