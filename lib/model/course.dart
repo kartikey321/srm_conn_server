@@ -81,7 +81,7 @@ class Course {
     };
   }
 
-  factory Course.fromMap(Map<String, dynamic> map) {
+  factory Course.fromMap(map) {
     return Course(
       studentId: map['studentId'] as String,
       courseName: map['courseName'] as String,
