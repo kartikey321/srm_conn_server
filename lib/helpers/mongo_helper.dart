@@ -381,11 +381,11 @@ class MongoHelper {
       var filter = mongo.where.eq('email', senderId);
       await senderColl.update(
         filter,
-        mongo.modify.addToSet('threadIds', id.toHexString()),
+        mongo.modify.addToSet('threads', id.toHexString()),
       );
       await recieverColl.update(
         mongo.where.eq('email', recieverId),
-        mongo.modify.addToSet('threadIds', id.toHexString()),
+        mongo.modify.addToSet('threads', id.toHexString()),
       );
       print('Success: Mail Sent');
       return jsonEncode(
