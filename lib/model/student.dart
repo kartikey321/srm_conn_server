@@ -12,7 +12,7 @@ class Student {
   String name;
   String email;
   String batch;
-  String year;
+  String semester;
   String facultyAdvisor;
   String department;
   String whatsappNumber;
@@ -25,7 +25,7 @@ class Student {
     required this.name,
     required this.email,
     required this.batch,
-    required this.year,
+    required this.semester,
     required this.facultyAdvisor,
     required this.department,
     required this.whatsappNumber,
@@ -40,7 +40,7 @@ class Student {
     String? name,
     String? email,
     String? batch,
-    String? year,
+    String? semester,
     String? facultyAdvisor,
     String? department,
     String? whatsappNumber,
@@ -54,7 +54,7 @@ class Student {
       name: name ?? this.name,
       email: email ?? this.email,
       batch: batch ?? this.batch,
-      year: year ?? this.year,
+      semester: semester ?? this.semester,
       facultyAdvisor: facultyAdvisor ?? this.facultyAdvisor,
       department: department ?? this.department,
       whatsappNumber: whatsappNumber ?? this.whatsappNumber,
@@ -71,26 +71,24 @@ class Student {
       'name': name,
       'email': email,
       'batch': batch,
-      'year': year,
+      'semester': semester,
       'facultyAdvisor': facultyAdvisor,
       'department': department,
       'whatsappNumber': whatsappNumber,
       'parentIds': parentIds,
-      'academics':
-          academics == null ? null : academics!.map((x) => x.toMap()).toList(),
-      'courses':
-          courses == null ? null : courses!.map((x) => x.toMap()).toList(),
+      'academics': academics!.map((x) => x.toMap()).toList(),
+      'courses': courses!.map((x) => x.toMap()).toList(),
     };
   }
 
-  factory Student.fromMap(map) {
+  factory Student.fromMap(Map<String, dynamic> map) {
     return Student(
       id: map['id'] as String,
       regNum: map['regNum'] as String,
       name: map['name'] as String,
       email: map['email'] as String,
       batch: map['batch'] as String,
-      year: map['year'] as String,
+      semester: map['semester'] as String,
       facultyAdvisor: map['facultyAdvisor'] as String,
       department: map['department'] as String,
       whatsappNumber: map['whatsappNumber'] as String,
@@ -99,14 +97,14 @@ class Student {
           : null,
       academics: map['academics'] != null
           ? List<Academics>.from(
-              (map['academics'] as List).map<Academics?>(
+              (map['academics'] as List<int>).map<Academics?>(
                 (x) => Academics.fromMap(x as Map<String, dynamic>),
               ),
             )
           : null,
       courses: map['courses'] != null
           ? List<Course>.from(
-              (map['courses'] as List).map<Course?>(
+              (map['courses'] as List<int>).map<Course?>(
                 (x) => Course.fromMap(x as Map<String, dynamic>),
               ),
             )
@@ -121,7 +119,7 @@ class Student {
 
   @override
   String toString() {
-    return 'Student(id: $id, regNum: $regNum, name: $name, email: $email, batch: $batch, year: $year, facultyAdvisor: $facultyAdvisor, department: $department, whatsappNumber: $whatsappNumber, parentIds: $parentIds, academics: $academics, courses: $courses)';
+    return 'Student(id: $id, regNum: $regNum, name: $name, email: $email, batch: $batch, semester: $semester, facultyAdvisor: $facultyAdvisor, department: $department, whatsappNumber: $whatsappNumber, parentIds: $parentIds, academics: $academics, courses: $courses)';
   }
 
   @override
@@ -134,7 +132,7 @@ class Student {
         other.name == name &&
         other.email == email &&
         other.batch == batch &&
-        other.year == year &&
+        other.semester == semester &&
         other.facultyAdvisor == facultyAdvisor &&
         other.department == department &&
         other.whatsappNumber == whatsappNumber &&
@@ -150,7 +148,7 @@ class Student {
         name.hashCode ^
         email.hashCode ^
         batch.hashCode ^
-        year.hashCode ^
+        semester.hashCode ^
         facultyAdvisor.hashCode ^
         department.hashCode ^
         whatsappNumber.hashCode ^

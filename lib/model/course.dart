@@ -28,6 +28,7 @@ class Course {
     required this.CT2,
     required this.CT3,
   });
+  int semester
 
   Course copyWith({
     String? studentId,
@@ -95,8 +96,7 @@ class Course {
 
   String toJson() => json.encode(toMap());
 
-  factory Course.fromJson(String source) =>
-      Course.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Course.fromJson(String source) => Course.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
@@ -104,18 +104,37 @@ class Course {
   }
 
   @override
+  bool operator ==(covariant Course other) {
+    if (identical(this, other)) return true;
+  
+    return 
+      other.studentId == studentId &&
+      other.courseName == courseName &&
+      other.facultyName == facultyName &&
+      other.facultyId == facultyId &&
+      other.courseCode == courseCode &&
+      other.courseCredits == courseCredits &&
+      other.courseType == courseType &&
+      other.attendance == attendance &&
+      other.present == present &&
+      other.CT1 == CT1 &&
+      other.CT2 == CT2 &&
+      other.CT3 == CT3;
+  }
+
+  @override
   int get hashCode {
     return studentId.hashCode ^
-        courseName.hashCode ^
-        facultyName.hashCode ^
-        facultyId.hashCode ^
-        courseCode.hashCode ^
-        courseCredits.hashCode ^
-        courseType.hashCode ^
-        attendance.hashCode ^
-        present.hashCode ^
-        CT1.hashCode ^
-        CT2.hashCode ^
-        CT3.hashCode;
+      courseName.hashCode ^
+      facultyName.hashCode ^
+      facultyId.hashCode ^
+      courseCode.hashCode ^
+      courseCredits.hashCode ^
+      courseType.hashCode ^
+      attendance.hashCode ^
+      present.hashCode ^
+      CT1.hashCode ^
+      CT2.hashCode ^
+      CT3.hashCode;
   }
 }
