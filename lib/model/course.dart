@@ -14,6 +14,7 @@ class Course {
   double CT1;
   double CT2;
   double CT3;
+  int semester;
   Course({
     required this.studentId,
     required this.courseName,
@@ -27,8 +28,8 @@ class Course {
     required this.CT1,
     required this.CT2,
     required this.CT3,
+    required this.semester,
   });
-  int semester
 
   Course copyWith({
     String? studentId,
@@ -43,6 +44,7 @@ class Course {
     double? CT1,
     double? CT2,
     double? CT3,
+    int? semester,
   }) {
     return Course(
       studentId: studentId ?? this.studentId,
@@ -57,6 +59,7 @@ class Course {
       CT1: CT1 ?? this.CT1,
       CT2: CT2 ?? this.CT2,
       CT3: CT3 ?? this.CT3,
+      semester: semester ?? this.semester,
     );
   }
 
@@ -74,10 +77,11 @@ class Course {
       'CT1': CT1,
       'CT2': CT2,
       'CT3': CT3,
+      'semester': semester,
     };
   }
 
-  factory Course.fromMap(Map<String, dynamic> map) {
+  factory Course.fromMap(map) {
     return Course(
       studentId: map['studentId'] as String,
       courseName: map['courseName'] as String,
@@ -91,50 +95,53 @@ class Course {
       CT1: map['CT1'] as double,
       CT2: map['CT2'] as double,
       CT3: map['CT3'] as double,
+      semester: map['semester'] as int,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Course.fromJson(String source) => Course.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Course.fromJson(String source) =>
+      Course.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
-    return 'Course(studentId: $studentId, courseName: $courseName, facultyName: $facultyName, facultyId: $facultyId, courseCode: $courseCode, courseCredits: $courseCredits, courseType: $courseType, attendance: $attendance, present: $present, CT1: $CT1, CT2: $CT2, CT3: $CT3)';
+    return 'Course(studentId: $studentId, courseName: $courseName, facultyName: $facultyName, facultyId: $facultyId, courseCode: $courseCode, courseCredits: $courseCredits, courseType: $courseType, attendance: $attendance, present: $present, CT1: $CT1, CT2: $CT2, CT3: $CT3, semester: $semester)';
   }
 
   @override
   bool operator ==(covariant Course other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.studentId == studentId &&
-      other.courseName == courseName &&
-      other.facultyName == facultyName &&
-      other.facultyId == facultyId &&
-      other.courseCode == courseCode &&
-      other.courseCredits == courseCredits &&
-      other.courseType == courseType &&
-      other.attendance == attendance &&
-      other.present == present &&
-      other.CT1 == CT1 &&
-      other.CT2 == CT2 &&
-      other.CT3 == CT3;
+
+    return other.studentId == studentId &&
+        other.courseName == courseName &&
+        other.facultyName == facultyName &&
+        other.facultyId == facultyId &&
+        other.courseCode == courseCode &&
+        other.courseCredits == courseCredits &&
+        other.courseType == courseType &&
+        other.attendance == attendance &&
+        other.present == present &&
+        other.CT1 == CT1 &&
+        other.CT2 == CT2 &&
+        other.CT3 == CT3 &&
+        other.semester == semester;
   }
 
   @override
   int get hashCode {
     return studentId.hashCode ^
-      courseName.hashCode ^
-      facultyName.hashCode ^
-      facultyId.hashCode ^
-      courseCode.hashCode ^
-      courseCredits.hashCode ^
-      courseType.hashCode ^
-      attendance.hashCode ^
-      present.hashCode ^
-      CT1.hashCode ^
-      CT2.hashCode ^
-      CT3.hashCode;
+        courseName.hashCode ^
+        facultyName.hashCode ^
+        facultyId.hashCode ^
+        courseCode.hashCode ^
+        courseCredits.hashCode ^
+        courseType.hashCode ^
+        attendance.hashCode ^
+        present.hashCode ^
+        CT1.hashCode ^
+        CT2.hashCode ^
+        CT3.hashCode ^
+        semester.hashCode;
   }
 }
