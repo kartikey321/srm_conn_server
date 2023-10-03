@@ -352,7 +352,8 @@ class MongoHelper {
         mongo.modify.set('updatedAt', mail.time.toIso8601String()),
       );
       print("Success: Mail Sent  ${threadUpdateResult}");
-      return jsonEncode({"Status": "Success, MailSent"});
+      return jsonEncode(
+          {"Status": "Success, MailSent", "mailId": addedMail.id});
     } catch (e) {
       print(e);
       return e;

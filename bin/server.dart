@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 
 
-import '../routes/index.dart' as index;
+import '../routes/thread/index.dart' as thread_index;
 import '../routes/thread/[id].dart' as thread_$id;
 import '../routes/student/index.dart' as student_index;
 import '../routes/student/[id].dart' as student_$id;
@@ -43,8 +43,7 @@ Handler buildRootHandler() {
     ..mount('/mail', (context) => buildMailHandler()(context))
     ..mount('/parent', (context) => buildParentHandler()(context))
     ..mount('/student', (context) => buildStudentHandler()(context))
-    ..mount('/thread', (context) => buildThreadHandler()(context))
-    ..mount('/', (context) => buildHandler()(context));
+    ..mount('/thread', (context) => buildThreadHandler()(context));
   return pipeline.addHandler(router);
 }
 
@@ -93,14 +92,7 @@ Handler buildStudentHandler() {
 Handler buildThreadHandler() {
   final pipeline = const Pipeline();
   final router = Router()
-    ..all('/<id>', (context,id,) => thread_$id.onRequest(context,id,));
-  return pipeline.addHandler(router);
-}
-
-Handler buildHandler() {
-  final pipeline = const Pipeline();
-  final router = Router()
-    ..all('/', (context) => index.onRequest(context,));
+    ..all('/', (context) => thread_index.onRequest(context,))..all('/<id>', (context,id,) => thread_$id.onRequest(context,id,));
   return pipeline.addHandler(router);
 }
 
