@@ -25,10 +25,14 @@ Future<Response> onRequest(RequestContext context) async {
 }
 
 Future<Response> addStud(RequestContext context) async {
-  final body = await context.request.json() as Map<String, dynamic>;
-  Student student = Student.fromMap(body);
-  var res = await MongoHelper.addStudent(student);
-  return Response(body: res.toString());
+  try {
+    final body = await context.request.json() as Map<String, dynamic>;
+    Student student = Student.fromMap(body);
+    var res = await MongoHelper.addStudent(student);
+    return Response(body: res.toString());
+  } catch (e) {
+    return Response(body: e.toString());
+  }
 }
 
 Future<Response> updateStud(RequestContext context) async {

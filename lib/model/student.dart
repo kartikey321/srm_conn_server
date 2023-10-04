@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:srm_conn_server/model/parent_info.dart';
+
 import 'academics.dart';
 import 'course.dart';
 
@@ -14,7 +16,7 @@ class Student {
   String facultyAdvisor;
   String department;
   String whatsappNumber;
-  List<String>? parentIds;
+  List<ParentInfo>? parents;
   List<Academics>? academics;
   List<Course>? courses;
   Student({
@@ -27,7 +29,7 @@ class Student {
     required this.facultyAdvisor,
     required this.department,
     required this.whatsappNumber,
-    this.parentIds,
+    this.parents,
     this.academics,
     this.courses,
   });
@@ -42,7 +44,7 @@ class Student {
     String? facultyAdvisor,
     String? department,
     String? whatsappNumber,
-    List<String>? parentIds,
+    List<ParentInfo>? parents,
     List<Academics>? academics,
     List<Course>? courses,
   }) {
@@ -56,7 +58,7 @@ class Student {
       facultyAdvisor: facultyAdvisor ?? this.facultyAdvisor,
       department: department ?? this.department,
       whatsappNumber: whatsappNumber ?? this.whatsappNumber,
-      parentIds: parentIds ?? this.parentIds,
+      parents: parents ?? this.parents,
       academics: academics ?? this.academics,
       courses: courses ?? this.courses,
     );
@@ -73,13 +75,13 @@ class Student {
       'facultyAdvisor': facultyAdvisor,
       'department': department,
       'whatsappNumber': whatsappNumber,
-      'parentIds': parentIds,
+      'parents': parents!.map((x) => x.toMap()).toList(),
       'academics': academics!.map((x) => x.toMap()).toList(),
       'courses': courses!.map((x) => x.toMap()).toList(),
     };
   }
 
-  factory Student.fromMap(map) {
+  factory Student.fromMap(Map<String, dynamic> map) {
     return Student(
       id: map['id'] as String,
       regNum: map['regNum'] as String,
@@ -90,19 +92,23 @@ class Student {
       facultyAdvisor: map['facultyAdvisor'] as String,
       department: map['department'] as String,
       whatsappNumber: map['whatsappNumber'] as String,
-      parentIds: map['parentIds'] != null
-          ? List<String>.from((map['parentIds'] as List<String>))
+      parents: map['parents'] != null
+          ? List<ParentInfo>.from(
+              (map['parents'] as List).map<ParentInfo?>(
+                (x) => ParentInfo.fromMap(x as Map<String, dynamic>),
+              ),
+            )
           : null,
       academics: map['academics'] != null
           ? List<Academics>.from(
-              (map['academics'] as List<dynamic>).map<Academics?>(
+              (map['academics'] as List).map<Academics?>(
                 (x) => Academics.fromMap(x as Map<String, dynamic>),
               ),
             )
           : null,
       courses: map['courses'] != null
           ? List<Course>.from(
-              (map['courses'] as List<dynamic>).map<Course?>(
+              (map['courses'] as List).map<Course?>(
                 (x) => Course.fromMap(x as Map<String, dynamic>),
               ),
             )
@@ -117,7 +123,7 @@ class Student {
 
   @override
   String toString() {
-    return 'Student(id: $id, regNum: $regNum, name: $name, email: $email, batch: $batch, semester: $semester, facultyAdvisor: $facultyAdvisor, department: $department, whatsappNumber: $whatsappNumber, parentIds: $parentIds, academics: $academics, courses: $courses)';
+    return 'Student(id: $id, regNum: $regNum, name: $name, email: $email, batch: $batch, semester: $semester, facultyAdvisor: $facultyAdvisor, department: $department, whatsappNumber: $whatsappNumber, parents: $parents, academics: $academics, courses: $courses)';
   }
 
   @override
@@ -131,7 +137,7 @@ class Student {
         facultyAdvisor.hashCode ^
         department.hashCode ^
         whatsappNumber.hashCode ^
-        parentIds.hashCode ^
+        parents.hashCode ^
         academics.hashCode ^
         courses.hashCode;
   }
