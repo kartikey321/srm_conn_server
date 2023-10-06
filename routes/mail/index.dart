@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
 import 'package:srm_conn_server/helpers/mongo_helper.dart';
 import 'package:srm_conn_server/model/srm_mail.dart';
-import 'package:srm_conn_server/model/thread.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   // TODO: implement route handler
@@ -31,12 +29,15 @@ Future<Response> newMail(RequestContext context) async {
       threadId = body['threadId'];
       body.remove('threadId');
     } else {
-      return Response(body: jsonEncode({"Status": "Provide all fields"}));
+      return Response(
+          body: MongoHelper.getReturnMap(
+              success: false, message: 'Provide all fields'));
     }
     SRMMail mail = SRMMail.fromMap(body);
     var res = await MongoHelper.addMailToThread(threadId as String, mail);
-    return Response(body: res.toString());
+    return res;
   } catch (e) {
-    return Response(body: e.toString());
+    return Response(
+        body: MongoHelper.getReturnMap(success: false, message: 'Error $e'));
   }
 }

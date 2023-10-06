@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
@@ -32,10 +31,6 @@ Future<Response> deleteParent(RequestContext context, String id) async {
 }
 
 Future<Response> fetchStudent(RequestContext context, String id) async {
-  try {
-    var data = await MongoHelper.getStudentbyId(id);
-    return Response(body: jsonEncode(data!.toMap()));
-  } catch (e) {
-    return Response(body: e.toString());
-  }
+  var data = await MongoHelper.getStudentbyId(id);
+  return data;
 }

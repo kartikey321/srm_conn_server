@@ -22,5 +22,5 @@ Future<Response> onRequest(
 
 Future<Response> fetchThread(RequestContext context, String id) async {
   var data = await MongoHelper.getThread(id);
-  return Response(body: data!.toJson());
+  return data;
 }

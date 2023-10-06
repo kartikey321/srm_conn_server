@@ -22,5 +22,5 @@ Future<Response> onRequest(
 
 Future<Response> fetchFaculty(RequestContext context, String id) async {
   var data = await MongoHelper.getFacultybyId(id);
-  return Response(body: data!.toJson());
+  return data;
 }

@@ -65,8 +65,17 @@ class MongoHelper {
     }
   }
 
-  static Future addParent(Parent parent) async {
+  static Future<Response> addParent(Parent parent) async {
     var parentsColl = db!.collection(parentPath);
+    var res = await parentsColl.findOne({'email': parent.email});
+
+    if (res != null) {
+      return Response(
+        body: getReturnMap(
+            success: false, message: 'Parent with same email already exists'),
+        statusCode: 500,
+      );
+    }
     await parentsColl.createIndex(
       keys: {'email': 1},
       unique: true,
@@ -74,31 +83,69 @@ class MongoHelper {
     try {
       await parentsColl.insertOne(parent.toMap());
       print('Parent added!');
-      return 'Success: Parent added';
+      return Response(
+        body: getReturnMap(success: true, message: 'Parent added'),
+      );
     } catch (e) {
       // Handle other errors, if any
       print('Error: $e');
-      return 'Error: $e';
+      return Response(
+        body: getReturnMap(success: false, message: 'Error $e'),
+        statusCode: 500,
+      );
     }
   }
 
-  static Future<List<Parent?>?> getAllParents() async {
-    var parentsColl = db!.collection(parentPath);
+  static Future<Response> getAllParents() async {
+    try {
+      var parentsColl = db!.collection(parentPath);
 
-    var data = await parentsColl.find().toList();
-    print(data);
-    List<Parent> parentList = [];
-    if (data != null) {
-      for (var d in data as List) {
-        var student = Parent.fromMap(d as Map<String, dynamic>);
-        parentList.add(student);
+      var data = await parentsColl.find().toList();
+      print(data);
+      List<Parent> parentList = [];
+      if (data != null) {
+        for (var d in data as List) {
+          var parent = Parent.fromMap(d as Map<String, dynamic>);
+          parentList.add(parent);
+        }
       }
+      List<Map<String, dynamic>> parentJsonList =
+          parentList.map((parent) => parent.toMap()).toList();
+      var resp =
+          getReturnMap(success: true, message: 'Success', data: parentJsonList);
+      print(resp);
+      return Response(body: resp);
+    } catch (e) {
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: 'Error $e',
+          ),
+          statusCode: 500);
     }
-    return parentList;
   }
 
-  static Future addFaculty(Faculty faculty) async {
+  static Future<Response> addFaculty(Faculty faculty) async {
     var facultyColl = db!.collection(facultyPath);
+
+    var res = await facultyColl.findOne({'email': faculty.email});
+
+    if (res != null) {
+      return Response(
+        body: getReturnMap(
+            success: false, message: 'Faculty with same email already exists'),
+        statusCode: 500,
+      );
+    }
+    res = await facultyColl.findOne({'regNum': faculty.regNum});
+    if (res != null) {
+      return Response(
+        body: getReturnMap(
+            success: false,
+            message: 'Faculty with same register number already exists'),
+        statusCode: 500,
+      );
+    }
     await facultyColl.createIndex(
       keys: {'email': 1},
       unique: true,
@@ -106,15 +153,20 @@ class MongoHelper {
     try {
       await facultyColl.insertOne(faculty.toMap());
       print('Faculty added!');
-      return 'Success: Faculty added';
+      return Response(
+        body: getReturnMap(success: true, message: 'Faculty added'),
+      );
     } catch (e) {
       // Handle other errors, if any
       print('Error: $e');
-      return 'Error: $e';
+      return Response(
+        body: getReturnMap(success: false, message: 'Error $e'),
+        statusCode: 500,
+      );
     }
   }
 
-  static Future<List<Faculty?>?> getAllFaculties() async {
+  static Future<Response> getAllFaculties() async {
     var facultiesColl = db!.collection(facultyPath);
 
     var data = await facultiesColl.find().toList();
@@ -128,7 +180,11 @@ class MongoHelper {
         facultyList.add(faculty);
       }
     }
-    return facultyList;
+    List<Map<String, dynamic>> facultyJsonList =
+        facultyList.map((faculty) => faculty.toMap()).toList();
+    var resp =
+        getReturnMap(success: true, message: 'Success', data: facultyJsonList);
+    return Response(body: resp);
   }
 
   static Future updateFacultyBatchYear(Map<String, dynamic> update) async {
@@ -143,7 +199,7 @@ class MongoHelper {
     return res;
   }
 
-  static Future<Faculty?> getFacultybyId(String id) async {
+  static Future<Response> getFacultybyId(String id) async {
     print(db);
     var facultyColl = db!.collection(facultyPath);
     print(id);
@@ -154,7 +210,17 @@ class MongoHelper {
       Faculty model = Faculty.fromMap(data);
       var res = await getStudentsByFacultyId(id);
       model.studentId = res;
-      return model;
+      return Response(
+        body: getReturnMap(
+            success: true, message: 'Found faculty', data: model.toMap()),
+      );
+    } else {
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: 'No faculty with this register number exists',
+          ),
+          statusCode: 500);
     }
   }
 
@@ -171,7 +237,7 @@ class MongoHelper {
     return studentRegNums;
   }
 
-  static Future updateFaculty(Map<String, dynamic> faculty) async {
+  static Future<Response> updateFaculty(Map<String, dynamic> faculty) async {
     var studentsColl = db!.collection(facultyPath);
     try {
       final update = mongo.ModifierBuilder();
@@ -190,31 +256,86 @@ class MongoHelper {
       //   print("Document not updated. No changes made.");
       // }
       print('result: ${result["nModified"]}');
-      return ({"status": "success"});
+      return Response(
+          body: getReturnMap(success: true, message: 'Faculty Updated'));
     } catch (e) {
       print(e);
-      return e;
+      return Response(
+        body: getReturnMap(success: false, message: 'Error $e'),
+        statusCode: 500,
+      );
     }
   }
 
-  static Future addStudent(Student student) async {
+  static String getReturnMap(
+      {required bool success, required String message, dynamic data}) {
+    Map<String, dynamic> returnMap = {"success": success, 'message': message};
+    Map<String, dynamic> returnMapData = {
+      "success": success,
+      'message': message,
+      'data': data
+    };
+    return jsonEncode(data == null ? returnMap : returnMapData);
+  }
+
+  static Future<Response> addStudent(Student student) async {
     var studentsColl = db!.collection(studentPath);
+
+    var res = await studentsColl.findOne({'email': student.email});
+
+    if (res != null) {
+      return Response(
+        body: getReturnMap(
+            success: false, message: 'Student with same email already exists'),
+        statusCode: 500,
+      );
+    }
+    res = await studentsColl.findOne({'regNum': student.regNum});
+    if (res != null) {
+      return Response(
+        body: getReturnMap(
+            success: false,
+            message: 'Student with same register number already exists'),
+        statusCode: 500,
+      );
+    }
     await studentsColl.createIndex(
-      keys: {'email': 1},
+      keys: {'email': 1, 'regNum': 1},
       unique: true,
     );
+
     try {
-      await studentsColl.insertOne(student.toMap());
-      print('Student added!');
-      return 'Success: Student added';
+      var res = await studentsColl.insertOne(student.toMap());
+      print(res.success);
+      if (res.success) {
+        print('Student added!');
+        return Response(
+          body: getReturnMap(
+            success: true,
+            message: 'Student added',
+          ),
+          statusCode: 500,
+        );
+      } else {
+        print('Error: Email already exists');
+        return Response(
+          body: getReturnMap(
+              success: false,
+              message: 'Student with same email already exists'),
+          statusCode: 500,
+        );
+      }
     } catch (e) {
       // Handle other errors, if any
       print('Error: $e');
-      return 'Error: $e';
+      return Response(
+        body: getReturnMap(success: false, message: 'Error $e'),
+        statusCode: 500,
+      );
     }
   }
 
-  static Future updateStudent(Map<String, dynamic> student) async {
+  static Future<Response> updateStudent(Map<String, dynamic> student) async {
     var studentsColl = db!.collection(studentPath);
     try {
       final update = mongo.ModifierBuilder();
@@ -232,15 +353,19 @@ class MongoHelper {
       // } else {
       //   print("Document not updated. No changes made.");
       // }
-      print(result["nModified"]);
-      return ({"status": "success"});
+      print(result);
+      return Response(
+          body: getReturnMap(success: true, message: 'Student Updated'));
     } catch (e) {
       print(e);
-      return e;
+      return Response(
+        body: getReturnMap(success: false, message: 'Error $e'),
+        statusCode: 500,
+      );
     }
   }
 
-  static Future<List<Student?>?> getAllStudents() async {
+  static Future<Response> getAllStudents() async {
     var studentsColl = db!.collection(studentPath);
 
     var data = await studentsColl.find().toList();
@@ -252,10 +377,14 @@ class MongoHelper {
         studList.add(student);
       }
     }
-    return studList;
+    List<Map<String, dynamic>> studJsonList =
+        studList.map((stud) => stud.toMap()).toList();
+    var resp =
+        getReturnMap(success: true, message: 'Success', data: studJsonList);
+    return Response(body: resp);
   }
 
-  static Future<Student?> getStudentbyId(String id) async {
+  static Future<Response> getStudentbyId(String id) async {
     print(db);
     var studentsColl = db!.collection(studentPath);
     print(id);
@@ -264,11 +393,21 @@ class MongoHelper {
     print(data);
     if (data != null) {
       Student model = Student.fromMap(data);
-      return model;
+      return Response(
+        body: getReturnMap(
+            success: true, message: 'Found student', data: model.toMap()),
+      );
+    } else {
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: 'No student with this register number exists',
+          ),
+          statusCode: 500);
     }
   }
 
-  static Future<Parent?> getParentbyId(String email) async {
+  static Future<Response> getParentbyId(String email) async {
     var parentsColl = db!.collection(parentPath);
     print(email);
     try {
@@ -276,45 +415,101 @@ class MongoHelper {
       print(data);
       if (data != null) {
         Parent model = Parent.fromMap(data);
-        return model;
+        return Response(
+          body: getReturnMap(
+              success: true, message: 'Found student', data: model.toMap()),
+        );
+      } else {
+        return Response(
+            body: getReturnMap(
+              success: false,
+              message: 'No student with this register number exists',
+            ),
+            statusCode: 500);
       }
     } catch (e) {
-      print(e);
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: 'Error $e',
+          ),
+          statusCode: 500);
     }
   }
 
-  static Future verifyParent(String email) async {
+  static Future<Response> verifyParent(String email) async {
     var parentsColl = db!.collection(parentPath);
 
     var filter = mongo.where.eq('email', email);
     var update = mongo.modify.set('verified', true);
     try {
-      await parentsColl.updateOne(filter, update);
-      return "done";
+      var resp = await parentsColl.updateOne(filter, update);
+      if (resp.success) {
+        return Response(
+            body:
+                getReturnMap(success: true, message: 'Verified parent $email'));
+      } else {
+        return Response(
+            body: getReturnMap(
+                success: false, message: "Couldnt't verify parent $email"));
+      }
     } catch (e) {
-      return e;
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: 'Error $e',
+          ),
+          statusCode: 500);
     }
   }
 
-  static Future deleteParent(String email) async {
-    var parentsColl = db!.collection(parentPath);
-    return parentsColl
-        .deleteOne(mongo.where.eq('email', email))
-        .whenComplete(() {
-      return 'deleted parent $email';
-    });
+  static Future<Response> deleteParent(String email) async {
+    try {
+      var parentsColl = db!.collection(parentPath);
+      var resp = await parentsColl.deleteOne(mongo.where.eq('email', email));
+      if (resp.success) {
+        return Response(
+            body:
+                getReturnMap(success: true, message: 'Deleted parent $email'));
+      } else {
+        return Response(
+            body: getReturnMap(
+                success: false, message: "Couldn't parent $email"));
+      }
+    } catch (e) {
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: 'Error $e',
+          ),
+          statusCode: 500);
+    }
   }
 
-  static Future deleteStudent(String email) async {
-    var studentsColl = db!.collection(studentPath);
-    return studentsColl
-        .deleteOne(mongo.where.eq('email', email))
-        .whenComplete(() {
-      return 'deleted student $email';
-    });
+  static Future<Response> deleteStudent(String email) async {
+    try {
+      var studentsColl = db!.collection(studentPath);
+      var resp = await studentsColl.deleteOne(mongo.where.eq('email', email));
+      if (resp.success) {
+        return Response(
+            body:
+                getReturnMap(success: true, message: 'Deleted studeny $email'));
+      } else {
+        return Response(
+            body: getReturnMap(
+                success: false, message: 'Couldn\'t student $email'));
+      }
+    } catch (e) {
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: 'Error $e',
+          ),
+          statusCode: 500);
+    }
   }
 
-  static Future<Thread?> getThread(String id) async {
+  static Future<Response> getThread(String id) async {
     var threadColl = db!.collection(threadPath);
     print(id);
     var objId = mongo.ObjectId.fromHexString('$id');
@@ -324,14 +519,26 @@ class MongoHelper {
       print(data);
       if (data != null) {
         Thread model = Thread.fromMap(data);
-        return model;
+        return Response(
+          body: getReturnMap(
+              success: true, message: 'Found thread', data: model.toMap()),
+        );
+      } else {
+        return Response(
+            body: getReturnMap(
+              success: false,
+              message: 'No such thread is found',
+            ),
+            statusCode: 500);
       }
     } catch (e) {
-      print(e);
+      return Response(
+          body: getReturnMap(success: false, message: 'Error $e'),
+          statusCode: 500);
     }
   }
 
-  static Future<SRMMail?> getMail(String id) async {
+  static Future<Response> getMail(String id) async {
     var mailColl = db!.collection(mailPath);
     print(id);
     var objId = mongo.ObjectId.fromHexString(id);
@@ -340,11 +547,21 @@ class MongoHelper {
     print(data);
     if (data != null) {
       SRMMail model = SRMMail.fromMap(data);
-      return model;
+      return Response(
+        body: getReturnMap(
+            success: true, message: 'Found mail', data: model.toMap()),
+      );
+    } else {
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: 'No such mail is found',
+          ),
+          statusCode: 500);
     }
   }
 
-  static Future addMailToThread(String threadId, SRMMail mail) async {
+  static Future<Response> addMailToThread(String threadId, SRMMail mail) async {
     var threadsColl = db!.collection(threadPath);
     var mailsColl = db!.collection(mailPath);
     print(threadId);
@@ -363,15 +580,20 @@ class MongoHelper {
         mongo.modify.set('updatedAt', mail.time.toIso8601String()),
       );
       print("Success: Mail Sent  ${threadUpdateResult}");
-      return jsonEncode(
-          {"Status": "Success, MailSent", "mailId": addedMail.id});
+      return Response(
+          body: getReturnMap(
+              success: true,
+              message: 'Mail Sent',
+              data: {'mailId': addedMail.id}));
     } catch (e) {
       print(e);
-      return e;
+      return Response(
+          body: getReturnMap(success: false, message: 'Error $e'),
+          statusCode: 500);
     }
   }
 
-  static Future createThread(
+  static Future<Response> createThread(
       {required String senderType,
       required String senderId,
       required String recieverId,
@@ -399,12 +621,16 @@ class MongoHelper {
         mongo.modify.addToSet('threads', id.toHexString()),
       );
       print('Success: Mail Sent');
-      return jsonEncode(
-        {'Status': 'Success, Thread created', 'threadId': id.toHexString()},
-      );
+      return Response(
+          body: getReturnMap(
+              success: true,
+              message: 'Thread created',
+              data: {'threadId': id.toHexString()}));
     } catch (e) {
       print(e);
-      return e;
+      return Response(
+          body: getReturnMap(success: false, message: 'Error $e'),
+          statusCode: 500);
     }
   }
 }

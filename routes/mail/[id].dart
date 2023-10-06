@@ -22,5 +22,5 @@ Future<Response> onRequest(
 
 Future<Response> fetchMail(RequestContext context, String id) async {
   var data = await MongoHelper.getMail(id);
-  return Response(body: data!.toJson());
+  return data;
 }

@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
@@ -25,8 +24,11 @@ Future<Response> newFaculty(RequestContext context) async {
   if (body.isNotEmpty) {
     Faculty faculty = Faculty.fromMap(body);
     var res = await MongoHelper.addFaculty(faculty);
-    return Response(body: res.toString());
+    return res;
   } else {
-    return Response(body: jsonEncode({"Status": "Provide all fields"}));
+    return Response(
+        body: MongoHelper.getReturnMap(
+            success: false, message: 'Provide all fields'),
+        statusCode: 500);
   }
 }

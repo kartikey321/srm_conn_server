@@ -24,16 +24,16 @@ Future<Response> onRequest(
 
 Future<Response> deleteParent(RequestContext context, String id) async {
   var res = await MongoHelper.deleteParent(id);
-  return Response.json(body: res.toString());
+  return res;
 }
 
 Future<Response> verifyParent(RequestContext context, String id) async {
   var res = await MongoHelper.verifyParent(id);
-  return Response.json(body: res.toString());
+  return res;
 }
 
 Future<Response> fetchParent(RequestContext context, String id) async {
   var data = await MongoHelper.getParentbyId(id);
   print(data);
-  return Response.json(body: data!.toMap());
+  return data;
 }

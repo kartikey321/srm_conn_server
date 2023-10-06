@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
@@ -26,7 +25,7 @@ Future<Response> addPar(RequestContext context) async {
 
   Parent parent = Parent.fromMap(body);
   var res = await MongoHelper.addParent(parent);
-  return Response(body: res.toString());
+  return res;
 }
 
 Future<Response> verifyPar(RequestContext context) async {
@@ -34,15 +33,18 @@ Future<Response> verifyPar(RequestContext context) async {
 
   if (body.isNotEmpty && body.containsKey('email')) {
     var res = await MongoHelper.verifyParent(body['email'].toString());
-    return Response(body: res.toString());
+    return res;
   }
-  return Response(body: 'Send parent email id');
+  return Response(
+      body: MongoHelper.getReturnMap(
+        success: false,
+        message: 'Send parent email id',
+      ),
+      statusCode: 500);
 }
 
 Future<Response> getAllPar(RequestContext context) async {
+  print(context);
   var res = await MongoHelper.getAllParents();
-  List<Map<String, dynamic>> studentJsonList =
-      res!.map((stud) => stud!.toMap()).toList();
-
-  return Response(body: jsonEncode(studentJsonList));
+  return res;
 }
