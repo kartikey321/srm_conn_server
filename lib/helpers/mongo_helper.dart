@@ -202,6 +202,7 @@ class MongoHelper {
   static Future<Response> getFacultybyId(String id) async {
     print(db);
     var facultyColl = db!.collection(facultyPath);
+    var threadsColl = db!.collection(threadPath);
     print(id);
 
     var data = await facultyColl.findOne(mongo.where.eq('regNum', id));
@@ -210,6 +211,21 @@ class MongoHelper {
       Faculty model = Faculty.fromMap(data);
       var res = await getStudentsByFacultyId(id);
       model.studentId = res;
+      if (model.threads != null) {
+        List<Thread> sortedThreads = [];
+        for (final threadId in model.threads!) {
+          final threadDoc = await threadsColl.findOne(
+              mongo.where.id(mongo.ObjectId.fromHexString(threadId as String)));
+          if (threadDoc != null) {
+            Thread thread = Thread.fromMap(threadDoc);
+            sortedThreads.add(thread);
+          }
+        }
+
+        sortedThreads.sort(
+            (a, b) => a.updatedAt.compareTo(b.updatedAt)); // Sort by timestamp
+        model.threads = sortedThreads.map((e) => e.id).toList();
+      }
       return Response(
         body: getReturnMap(
             success: true, message: 'Found faculty', data: model.toMap()),
@@ -409,12 +425,29 @@ class MongoHelper {
 
   static Future<Response> getParentbyId(String email) async {
     var parentsColl = db!.collection(parentPath);
+    var threadsColl = db!.collection(threadPath);
     print(email);
     try {
       var data = await parentsColl.findOne(mongo.where.eq('email', email));
       print(data);
       if (data != null) {
         Parent model = Parent.fromMap(data);
+        if (model.threads != null) {
+          List<Thread> sortedThreads = [];
+          for (final threadId in model.threads!) {
+            final threadDoc = await threadsColl.findOne(mongo.where
+                .id(mongo.ObjectId.fromHexString(threadId as String)));
+            if (threadDoc != null) {
+              Thread thread = Thread.fromMap(threadDoc);
+              sortedThreads.add(thread);
+            }
+          }
+
+          sortedThreads.sort((a, b) =>
+              a.updatedAt.compareTo(b.updatedAt)); // Sort by timestamp
+          model.threads = sortedThreads.map((e) => e.id).toList();
+        }
+
         return Response(
           body: getReturnMap(
               success: true, message: 'Found student', data: model.toMap()),
@@ -579,6 +612,7 @@ class MongoHelper {
         mongo.where.id(mongo.ObjectId.fromHexString(threadId)),
         mongo.modify.set('updatedAt', mail.time.toIso8601String()),
       );
+
       print("Success: Mail Sent  ${threadUpdateResult}");
       return Response(
           body: getReturnMap(
