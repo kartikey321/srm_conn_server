@@ -1,11 +1,7 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
 import 'package:srm_conn_server/helpers/mongo_helper.dart';
-import 'package:srm_conn_server/model/faculty.dart';
-import 'package:srm_conn_server/model/srm_mail.dart';
-import 'package:srm_conn_server/model/thread.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   // TODO: implement route handler
@@ -28,9 +24,14 @@ Future<Response> updateFacultyClass(RequestContext context) async {
   print(body);
   if (body.isNotEmpty && body.containsKey('regNum')) {
     var res = await MongoHelper.updateFacultyBatchYear(body);
-
-    return Response(body: res.toString());
+    print(res);
+    return res;
   } else {
-    return Response(body: jsonEncode({"Status": "Provide all fields"}));
+    return Response(
+        body: MongoHelper.getReturnMap(
+          success: false,
+          message: 'Provide all the fields',
+        ),
+        statusCode: 500);
   }
 }

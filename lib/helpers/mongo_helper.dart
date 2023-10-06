@@ -187,7 +187,8 @@ class MongoHelper {
     return Response(body: resp);
   }
 
-  static Future updateFacultyBatchYear(Map<String, dynamic> update) async {
+  static Future<Response> updateFacultyBatchYear(
+      Map<String, dynamic> update) async {
     print('update1: $update');
     Map<String, dynamic> update1 = {
       "regNum": update['regNum'],
