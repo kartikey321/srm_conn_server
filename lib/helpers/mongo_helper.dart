@@ -21,7 +21,7 @@ class MongoHelper {
 
   static Future<mongo.Db> initiaize() async {
     db = await mongo.Db.create(
-      'mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/',
+      'mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/srm_connect',
     );
     var res = await db!.open();
     print(res);
@@ -41,18 +41,10 @@ class MongoHelper {
     } catch (e) {
       return Response.json(
         statusCode: 500,
-        body: {'message': 'Internal Server Error'},
+        body: {'message': e.toString()},
       );
     }
   }
-
-  // static Future<void> doMyJob() async {
-  //   var coll = db!.collection(studentPath);
-  //   await coll.updateMany({}, mongo.modify.rename('year', 'semester'));
-  //   await coll.updateMany({}, mongo.modify.set('semester', 4));
-  //   await coll.updateMany({}, mongo.modify.set('courses.\$\[].semester', 1));
-  //   print('done');
-  // }
 
   static Future<void> clearAllCollections() async {
     // Open the database connection if not already opened

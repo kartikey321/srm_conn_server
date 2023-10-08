@@ -8,7 +8,8 @@ Future<Response> onRequest(RequestContext context) async {
 
   switch (context.request.method) {
     case HttpMethod.patch:
-      return MongoHelper.startConnection(context, updateFacultyClass(context));
+      return await MongoHelper.startConnection(
+          context, updateFacultyClass(context));
     case HttpMethod.delete:
     case HttpMethod.get:
     case HttpMethod.head:
