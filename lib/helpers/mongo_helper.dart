@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:dart_frog/dart_frog.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
+import 'package:mongo_pool/mongo_pool.dart';
 import 'package:srm_conn_server/model/faculty.dart';
 import 'package:srm_conn_server/model/srm_mail.dart';
 import 'package:srm_conn_server/model/thread.dart';
@@ -19,12 +20,29 @@ class MongoHelper {
   static String mailPath = 'mails';
   static mongo.Db? db;
 
+  static Future<void> openDbPool(MongoDbPoolService service) async {
+    try {
+      await service.open();
+    } on Exception catch (e) {
+      /// handle the exception here
+      print(e);
+    }
+  }
+
   static Future<mongo.Db> initiaize() async {
-    db = await mongo.Db.create(
-      'mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/srm_connect',
+    final MongoDbPoolService poolService = MongoDbPoolService(
+      const MongoPoolConfiguration(
+        maxLifetimeMilliseconds: 90000,
+        leakDetectionThreshold: 10000,
+        uriString:
+            'mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/srm_connect',
+        poolSize: 10,
+      ),
     );
-    var res = await db!.open();
-    print(res);
+    await openDbPool(poolService);
+
+    /// Get a connection from pool
+    db = await poolService.acquire();
     return db!;
   }
 
