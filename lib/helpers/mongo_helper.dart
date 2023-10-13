@@ -29,38 +29,41 @@ class MongoHelper {
     }
   }
 
-  static Future<mongo.Db> initiaize() async {
-    final MongoDbPoolService poolService = MongoDbPoolService(
-      const MongoPoolConfiguration(
-        maxLifetimeMilliseconds: 90000,
-        leakDetectionThreshold: 10000,
-        uriString:
-            'mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/srm_connect',
-        poolSize: 10,
-      ),
-    );
-    await openDbPool(poolService);
-
-    /// Get a connection from pool
-    db = await poolService.acquire();
-    return db!;
-  }
-
+  static MongoDbPoolService poolService1 = MongoDbPoolService(
+    const MongoPoolConfiguration(
+      maxLifetimeMilliseconds: 100000,
+      leakDetectionThreshold: 90000,
+      uriString:
+          'mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/srm_connect',
+      poolSize: 10,
+    ),
+  );
+  // static Future<mongo.Db> initiaize() async {
+  //   await openDbPool(poolService);
+  //
+  //   /// Get a connection from pool
+  //   db = await poolService.acquire();
+  //   print(db!);
+  //   return db!;
+  // }
+  static MongoDbPoolService poolService = MongoDbPoolService.getInstance();
+  static Response? callBack1;
   static Future<Response> startConnection(
     RequestContext context,
     Future<Response> callBack,
   ) async {
     try {
-      while (db == null) {
-        var res = await initiaize();
-      }
+      db = await poolService.acquire();
 
-      return await callBack;
+      callBack1 = await callBack;
+      return callBack1!;
     } catch (e) {
       return Response.json(
         statusCode: 500,
         body: {'message': e.toString()},
       );
+    } finally {
+      await poolService.release(db!);
     }
   }
 
