@@ -35,7 +35,7 @@ class MongoHelper {
       leakDetectionThreshold: 90000,
       uriString:
           'mongodb+srv://kartikey321:kartikey321@cluster0.ykqbrjy.mongodb.net/srm_connect',
-      poolSize: 10,
+      poolSize: 100,
     ),
   );
   // static Future<mongo.Db> initiaize() async {
