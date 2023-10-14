@@ -29,7 +29,7 @@ class MongoHelper {
     }
   }
 
-  static MongoDbPoolService poolService1 = MongoDbPoolService(
+  static MongoDbPoolService poolService = MongoDbPoolService(
     const MongoPoolConfiguration(
       maxLifetimeMilliseconds: 100000,
       leakDetectionThreshold: 90000,
@@ -46,7 +46,6 @@ class MongoHelper {
   //   print(db!);
   //   return db!;
   // }
-  static MongoDbPoolService poolService = MongoDbPoolService.getInstance();
   static Response? callBack1;
   static Future<Response> startConnection(
     RequestContext context,
