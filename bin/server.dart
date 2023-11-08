@@ -5,21 +5,21 @@ import 'dart:io';
 
 import 'package:dart_frog/dart_frog.dart';
 
-import '../routes/thread/index.dart' as thread_index;
-import '../routes/thread/[id].dart' as thread_$id;
-import '../routes/student/index.dart' as student_index;
-import '../routes/student/[id].dart' as student_$id;
-import '../routes/parent/index.dart' as parent_index;
-import '../routes/parent/[id].dart' as parent_$id;
-import '../routes/mail/index.dart' as mail_index;
-import '../routes/mail/[id].dart' as mail_$id;
+import '../routes/_middleware.dart' as middleware;
+import '../routes/faculty/details/[id].dart' as faculty_details_$id;
+import '../routes/faculty/details/index.dart' as faculty_details_index;
+import '../routes/faculty/email/[id].dart' as faculty_email_$id;
 import '../routes/faculty/index.dart' as faculty_index;
 import '../routes/faculty/updateclass/index.dart' as faculty_updateclass_index;
-import '../routes/faculty/email/[id].dart' as faculty_email_$id;
-import '../routes/faculty/details/index.dart' as faculty_details_index;
-import '../routes/faculty/details/[id].dart' as faculty_details_$id;
-
-import '../routes/_middleware.dart' as middleware;
+import '../routes/mail/[id].dart' as mail_$id;
+import '../routes/mail/index.dart' as mail_index;
+import '../routes/notification/new.dart' as notification_new;
+import '../routes/parent/[id].dart' as parent_$id;
+import '../routes/parent/index.dart' as parent_index;
+import '../routes/student/[id].dart' as student_$id;
+import '../routes/student/index.dart' as student_index;
+import '../routes/thread/[id].dart' as thread_$id;
+import '../routes/thread/index.dart' as thread_index;
 
 void main() async {
   final address = InternetAddress.anyIPv6;
@@ -45,6 +45,7 @@ Handler buildRootHandler() {
         (context) => buildFacultyUpdateclassHandler()(context))
     ..mount('/faculty', (context) => buildFacultyHandler()(context))
     ..mount('/mail', (context) => buildMailHandler()(context))
+    ..mount('/notification', (context) => buildNotificationHandler()(context))
     ..mount('/parent', (context) => buildParentHandler()(context))
     ..mount('/student', (context) => buildStudentHandler()(context))
     ..mount('/thread', (context) => buildThreadHandler()(context));
@@ -127,6 +128,17 @@ Handler buildMailHandler() {
             mail_$id.onRequest(
               context,
               id,
+            ));
+  return pipeline.addHandler(router);
+}
+
+Handler buildNotificationHandler() {
+  final pipeline = const Pipeline();
+  final router = Router()
+    ..all(
+        '/new',
+        (context) => notification_new.onRequest(
+              context,
             ));
   return pipeline.addHandler(router);
 }
