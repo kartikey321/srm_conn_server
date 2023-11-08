@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:dart_frog/dart_frog.dart';
+import 'package:http/http.dart' as http;
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:mongo_pool/mongo_pool.dart';
 import 'package:srm_conn_server/model/faculty.dart';
@@ -472,6 +473,68 @@ class MongoHelper {
           body: getReturnMap(
             success: false,
             message: 'No student with this register number exists',
+          ),
+          statusCode: 500);
+    }
+  }
+
+  static Future<Response> updateParenToken(String email, String token) async {
+    var parentsColl = db!.collection(parentPath);
+    try {
+      var update = mongo.modify.set('token', token);
+      await parentsColl.update(mongo.where.eq('email', email), update);
+      return Response(
+          body: getReturnMap(success: true, message: 'Token added'));
+    } catch (e) {
+      print(e);
+      return Response(
+        body: getReturnMap(success: false, message: 'Error $e'),
+        statusCode: 500,
+      );
+    }
+  }
+
+  static getTokenFromEmail(String email) async {
+    var parentsColl = db!.collection(parentPath);
+
+    var data = await parentsColl.findOne(mongo.where.eq('email', email));
+    print(data);
+    var token = data!['token'];
+    return token;
+  }
+
+  static Future<Response> sendNotifsToUsers(
+      String email, String notifTitle, String notifBody) async {
+    var token = await getTokenFromEmail(email);
+    print(token);
+    var accessToken =
+        "AAAAbJoowwQ:APA91bErwEUHGh9tdS2EF5ubnpGjagRCV5m9v7qytmC3H3lqcPy_emLFZnHaZOq-P1LuRLEm770zy9ipzy2oZ08tTARKrdxc9L2a-0E5p9a1sRFkEi6Nib1Yf9L9mFxbcLp8san0QLe2";
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $accessToken'
+    };
+    var body = {
+      "to": token,
+      "notification": {
+        "title": notifTitle,
+        "body": notifBody,
+      },
+    };
+    var res = await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
+        headers: headers, body: jsonEncode(body));
+    print(res.body);
+    if (res.statusCode == 200) {
+      return Response(
+        body: getReturnMap(
+          success: true,
+          message: res.body,
+        ),
+      );
+    } else {
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: res.body,
           ),
           statusCode: 500);
     }
