@@ -212,6 +212,47 @@ class MongoHelper {
     return res;
   }
 
+  static Future<Response> getFacultybyEmail(String id) async {
+    print(db);
+    var facultyColl = db!.collection(facultyPath);
+    var threadsColl = db!.collection(threadPath);
+    print(id);
+
+    var data = await facultyColl.findOne(mongo.where.eq('email', id));
+    print(data);
+    if (data != null) {
+      Faculty model = Faculty.fromMap(data);
+      var res = await getStudentsByFacultyId(id);
+      model.studentId = res;
+      if (model.threads != null) {
+        List<Thread> sortedThreads = [];
+        for (final threadId in model.threads!) {
+          final threadDoc = await threadsColl.findOne(
+              mongo.where.id(mongo.ObjectId.fromHexString(threadId as String)));
+          if (threadDoc != null) {
+            Thread thread = Thread.fromMap(threadDoc);
+            sortedThreads.add(thread);
+          }
+        }
+
+        sortedThreads.sort(
+            (a, b) => a.updatedAt.compareTo(b.updatedAt)); // Sort by timestamp
+        model.threads = sortedThreads.map((e) => e.id).toList();
+      }
+      return Response(
+        body: getReturnMap(
+            success: true, message: 'Found faculty', data: model.toMap()),
+      );
+    } else {
+      return Response(
+          body: getReturnMap(
+            success: false,
+            message: 'No faculty with this register number exists',
+          ),
+          statusCode: 500);
+    }
+  }
+
   static Future<Response> getFacultybyId(String id) async {
     print(db);
     var facultyColl = db!.collection(facultyPath);
