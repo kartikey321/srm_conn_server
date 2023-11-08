@@ -42,10 +42,13 @@ Handler buildRootHandler() {
         (RequestContext context) => buildFacultyUpdateclassHandler()(context))
     ..mount(
         '/faculty', (RequestContext context) => buildFacultyHandler()(context))
-    ..mount('/mail', (context) => buildMailHandler()(context))
-    ..mount('/parent', (context) => buildParentHandler()(context))
-    ..mount('/student', (context) => buildStudentHandler()(context))
-    ..mount('/thread', (context) => buildThreadHandler()(context));
+    ..mount('/mail', (RequestContext context) => buildMailHandler()(context))
+    ..mount(
+        '/parent', (RequestContext context) => buildParentHandler()(context))
+    ..mount(
+        '/student', (RequestContext context) => buildStudentHandler()(context))
+    ..mount(
+        '/thread', (RequestContext context) => buildThreadHandler()(context));
   return pipeline.addHandler(router);
 }
 
@@ -54,14 +57,14 @@ Handler buildFacultyDetailsHandler() {
   final router = Router()
     ..all(
         '/',
-        (context) => faculty_details_index.onRequest(
+        (RequestContext context) => faculty_details_index.onRequest(
               context,
             ))
     ..all(
         '/<id>',
         (
-          context,
-          id,
+          RequestContext context,
+          String id,
         ) =>
             faculty_details_$id.onRequest(
               context,
@@ -75,7 +78,7 @@ Handler buildFacultyUpdateclassHandler() {
   final router = Router()
     ..all(
         '/',
-        (context) => faculty_updateclass_index.onRequest(
+        (RequestContext context) => faculty_updateclass_index.onRequest(
               context,
             ));
   return pipeline.addHandler(router);
@@ -86,7 +89,7 @@ Handler buildFacultyHandler() {
   final router = Router()
     ..all(
         '/',
-        (context) => faculty_index.onRequest(
+        (RequestContext context) => faculty_index.onRequest(
               context,
             ));
   return pipeline.addHandler(router);
@@ -97,14 +100,14 @@ Handler buildMailHandler() {
   final router = Router()
     ..all(
         '/',
-        (context) => mail_index.onRequest(
+        (RequestContext context) => mail_index.onRequest(
               context,
             ))
     ..all(
         '/<id>',
         (
-          context,
-          id,
+          RequestContext context,
+          String id,
         ) =>
             mail_$id.onRequest(
               context,
@@ -118,14 +121,14 @@ Handler buildParentHandler() {
   final router = Router()
     ..all(
         '/',
-        (context) => parent_index.onRequest(
+        (RequestContext context) => parent_index.onRequest(
               context,
             ))
     ..all(
         '/<id>',
         (
-          context,
-          id,
+          RequestContext context,
+          String id,
         ) =>
             parent_$id.onRequest(
               context,
@@ -139,14 +142,14 @@ Handler buildStudentHandler() {
   final router = Router()
     ..all(
         '/',
-        (context) => student_index.onRequest(
+        (RequestContext context) => student_index.onRequest(
               context,
             ))
     ..all(
         '/<id>',
         (
-          context,
-          id,
+          RequestContext context,
+          String id,
         ) =>
             student_$id.onRequest(
               context,
@@ -160,14 +163,14 @@ Handler buildThreadHandler() {
   final router = Router()
     ..all(
         '/',
-        (context) => thread_index.onRequest(
+        (RequestContext context) => thread_index.onRequest(
               context,
             ))
     ..all(
         '/<id>',
         (
-          context,
-          id,
+          RequestContext context,
+          String id,
         ) =>
             thread_$id.onRequest(
               context,
